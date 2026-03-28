@@ -71,7 +71,7 @@ set -- mtproto-proxy \
   --aes-pwd "$PROXY_SECRET_FILE" "$PROXY_CONFIG_FILE"
 
 if [ -n "$VERBOSITY" ]; then
-  set -- "$@" -v "$VERBOSITY"
+  set -- "$@" "-v$VERBOSITY"
 fi
 
 if [ -z "$WORKERS" ] && [ -z "$TLS_DOMAIN" ]; then
