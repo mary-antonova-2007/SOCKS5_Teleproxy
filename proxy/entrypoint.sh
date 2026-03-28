@@ -101,6 +101,10 @@ trap cleanup INT TERM
 
 last_request_id=""
 
+if [ -f "$STATUS_FILE" ]; then
+  last_request_id=$(sed -n 's/.*"request_id"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$STATUS_FILE" | head -n 1)
+fi
+
 while kill -0 "$proxy_pid" >/dev/null 2>&1; do
   if [ -f "$REQUEST_FILE" ]; then
     request_id=$(sed -n 's/.*"request_id"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$REQUEST_FILE" | head -n 1)
@@ -108,6 +112,7 @@ while kill -0 "$proxy_pid" >/dev/null 2>&1; do
       if kill -USR1 "$proxy_pid" >/dev/null 2>&1; then
         json_status "$request_id" "ok" "reload signal sent"
         last_request_id="$request_id"
+        rm -f "$REQUEST_FILE"
       else
         json_status "$request_id" "error" "failed to signal 3proxy"
       fi
