@@ -22,6 +22,19 @@ TAG="${MTPROTO_TAG:-}"
 WORKERS="${MTPROTO_WORKERS:-1}"
 
 [ -n "$CLIENT_SECRET" ] || die "MTPROTO_CLIENT_SECRET is required"
+case "$CLIENT_SECRET" in
+  dd????????????????????????????????)
+    CLIENT_SECRET="${CLIENT_SECRET#dd}"
+    ;;
+esac
+
+case "$CLIENT_SECRET" in
+  [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F])
+    ;;
+  *)
+    die "MTPROTO_CLIENT_SECRET must be 32 hex digits, optionally prefixed with dd"
+    ;;
+esac
 
 mkdir -p "$STATE_DIR"
 
@@ -60,6 +73,6 @@ if [ -n "$TAG" ]; then
 fi
 
 log "Starting MTProto proxy on ${PUBLIC_HOST}:${CLIENT_PORT}"
-log "Client link: tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=${CLIENT_SECRET}"
+log "Client link: tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=dd${CLIENT_SECRET}"
 
 exec "$@"

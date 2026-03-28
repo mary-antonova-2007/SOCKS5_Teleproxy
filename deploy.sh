@@ -104,9 +104,9 @@ MTPROTO_PORT="$mtproto_port"
 MTPROTO_STATS_PORT="$mtproto_stats_port"
 MTPROTO_TAG="$mtproto_tag"
 if [[ -z "$mtproto_client_secret" ]]; then
-  MTPROTO_CLIENT_SECRET="dd$(ts5_generate_hex_secret)"
+  MTPROTO_CLIENT_SECRET="$(ts5_generate_hex_secret)"
 else
-  MTPROTO_CLIENT_SECRET="$mtproto_client_secret"
+  MTPROTO_CLIENT_SECRET="$(ts5_normalize_mtproto_secret "$mtproto_client_secret")"
 fi
 
 if [[ -z "$jwt_secret" ]]; then
@@ -176,7 +176,8 @@ printf 'API:   %s\n' "$API_BASE_URL"
 printf 'Admin: %s\n' "$API_BASE_URL"
 printf 'SOCKS: socks5://<user>:<password>@127.0.0.1:%s\n' "$SOCKS5_PORT"
 if [[ "$ENABLE_MTPROTO" == "true" ]]; then
-  printf 'MTProto: tg://proxy?server=%s&port=%s&secret=%s\n' "$PUBLIC_API_HOST" "$MTPROTO_PORT" "$MTPROTO_CLIENT_SECRET"
+  printf 'MTProto: tg://proxy?server=%s&port=%s&secret=%s\n' \
+    "$PUBLIC_API_HOST" "$MTPROTO_PORT" "$(ts5_mtproto_link_secret "$MTPROTO_CLIENT_SECRET")"
 fi
 printf 'Superadmin: %s\n' "$SUPERADMIN_USERNAME"
 printf 'Initial admin: %s\n' "$INITIAL_ADMIN_USERNAME"

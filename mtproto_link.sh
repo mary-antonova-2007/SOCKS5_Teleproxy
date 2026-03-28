@@ -16,4 +16,5 @@ if [[ -z "$mtproto_secret" ]]; then
   ts5_die "MTPROTO_CLIENT_SECRET is not set in $env_file"
 fi
 
-printf 'tg://proxy?server=%s&port=%s&secret=%s\n' "$public_host" "$mtproto_port" "$mtproto_secret"
+printf 'tg://proxy?server=%s&port=%s&secret=%s\n' \
+  "$public_host" "$mtproto_port" "$(ts5_mtproto_link_secret "$mtproto_secret")"

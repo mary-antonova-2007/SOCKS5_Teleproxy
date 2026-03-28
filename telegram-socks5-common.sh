@@ -108,6 +108,25 @@ ts5_generate_hex_secret() {
   printf '\n'
 }
 
+ts5_normalize_mtproto_secret() {
+  local secret="${1,,}"
+  if [[ "$secret" =~ ^dd[0-9a-f]{32}$ ]]; then
+    secret="${secret:2}"
+  fi
+
+  if [[ ! "$secret" =~ ^[0-9a-f]{32}$ ]]; then
+    ts5_die "MTProto secret must contain exactly 32 hex digits or start with dd followed by 32 hex digits"
+  fi
+
+  printf '%s\n' "$secret"
+}
+
+ts5_mtproto_link_secret() {
+  local base_secret
+  base_secret="$(ts5_normalize_mtproto_secret "${1:-}")"
+  printf 'dd%s\n' "$base_secret"
+}
+
 ts5_shell_quote() {
   printf '%q' "$1"
 }

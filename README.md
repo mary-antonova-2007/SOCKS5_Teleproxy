@@ -148,8 +148,13 @@ tail -f data/3proxy.log.$(date +%Y.%m.%d)
 
 - `ENABLE_MTPROTO=true`
 - `MTPROTO_PORT=443`
-- `MTPROTO_CLIENT_SECRET=...`
+- `MTPROTO_CLIENT_SECRET=0123456789abcdef0123456789abcdef`
 - `MTPROTO_TAG=` опционально, если зарегистрируешь прокси в `@MTProxybot`
+
+Важно:
+
+- в `.env` секрет хранится как базовые `32` hex-символа
+- в ссылке `tg://proxy?...` скрипт сам добавляет клиентский префикс `dd`
 
 Получить готовую ссылку:
 
