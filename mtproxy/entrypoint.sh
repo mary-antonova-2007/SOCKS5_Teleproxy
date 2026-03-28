@@ -71,7 +71,18 @@ set -- mtproto-proxy \
   --aes-pwd "$PROXY_SECRET_FILE" "$PROXY_CONFIG_FILE"
 
 if [ -n "$VERBOSITY" ]; then
-  set -- "$@" "-v$VERBOSITY"
+  case "$VERBOSITY" in
+    ''|*[!0-9]*)
+      die "MTPROTO_VERBOSITY must be a non-negative integer"
+      ;;
+    *)
+      i=0
+      while [ "$i" -lt "$VERBOSITY" ]; do
+        set -- "$@" -v
+        i=$((i + 1))
+      done
+      ;;
+  esac
 fi
 
 if [ -z "$WORKERS" ] && [ -z "$TLS_DOMAIN" ]; then
