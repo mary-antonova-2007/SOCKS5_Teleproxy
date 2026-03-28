@@ -149,6 +149,8 @@ tail -f data/3proxy.log.$(date +%Y.%m.%d)
 - `ENABLE_MTPROTO=true`
 - `MTPROTO_PORT=443`
 - `MTPROTO_CLIENT_SECRET=0123456789abcdef0123456789abcdef`
+- `MTPROTO_WORKERS=` лучше оставить пустым для Fake TLS, чтобы не включать лишние worker-процессы
+- `MTPROTO_VERBOSITY=` можно задать, например `2` или `3`, для подробной диагностики
 - `MTPROTO_TLS_DOMAIN=` опционально. Если задать, ссылка для Telegram будет собрана в Fake TLS формате `ee...`
 - `MTPROTO_TAG=` опционально, если зарегистрируешь прокси в `@MTProxybot`
 

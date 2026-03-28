@@ -133,7 +133,7 @@ ts5_mtproto_tls_link_secret() {
   domain="${2:-}"
   [[ -n "$domain" ]] || ts5_die "MTProto TLS domain is required for Fake TLS links"
   printf 'ee%s' "$base_secret"
-  printf '%s' "$domain" | xxd -p -c 256 | tr -d '\n'
+  printf '%s' "$domain" | od -An -tx1 -v | tr -d ' \n'
   printf '\n'
 }
 

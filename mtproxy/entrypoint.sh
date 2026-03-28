@@ -20,8 +20,9 @@ CLIENT_PORT="${MTPROTO_PORT:-443}"
 LISTEN_PORT="${MTPROTO_LISTEN_PORT:-443}"
 STATS_PORT="${MTPROTO_STATS_PORT:-8888}"
 TAG="${MTPROTO_TAG:-}"
-WORKERS="${MTPROTO_WORKERS:-1}"
+WORKERS="${MTPROTO_WORKERS:-}"
 TLS_DOMAIN="${MTPROTO_TLS_DOMAIN:-}"
+VERBOSITY="${MTPROTO_VERBOSITY:-}"
 
 [ -n "$CLIENT_SECRET" ] || die "MTPROTO_CLIENT_SECRET is required"
 case "$CLIENT_SECRET" in
@@ -67,8 +68,19 @@ set -- mtproto-proxy \
   -p "$STATS_PORT" \
   -H "$LISTEN_PORT" \
   -S "$CLIENT_SECRET" \
-  --aes-pwd "$PROXY_SECRET_FILE" "$PROXY_CONFIG_FILE" \
-  -M "$WORKERS"
+  --aes-pwd "$PROXY_SECRET_FILE" "$PROXY_CONFIG_FILE"
+
+if [ -n "$VERBOSITY" ]; then
+  set -- "$@" -v "$VERBOSITY"
+fi
+
+if [ -z "$WORKERS" ] && [ -z "$TLS_DOMAIN" ]; then
+  WORKERS=1
+fi
+
+if [ -n "$WORKERS" ] && [ "$WORKERS" != "0" ]; then
+  set -- "$@" -M "$WORKERS"
+fi
 
 if [ -n "$TAG" ]; then
   set -- "$@" -P "$TAG"
@@ -80,7 +92,7 @@ fi
 
 log "Starting MTProto proxy on ${PUBLIC_HOST}:${CLIENT_PORT}"
 if [ -n "$TLS_DOMAIN" ]; then
-  tls_secret="$(printf '%s' "$TLS_DOMAIN" | xxd -p -c 256 | tr -d '\n')"
+  tls_secret="$(printf '%s' "$TLS_DOMAIN" | od -An -tx1 -v | tr -d ' \n')"
   log "Client link: tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=ee${CLIENT_SECRET}${tls_secret}"
 else
   log "Client link: tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=dd${CLIENT_SECRET}"

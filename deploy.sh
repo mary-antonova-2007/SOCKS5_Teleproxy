@@ -58,6 +58,9 @@ enable_mtproto="${ENABLE_MTPROTO:-true}"
 mtproto_port="${MTPROTO_PORT:-443}"
 mtproto_stats_port="${MTPROTO_STATS_PORT:-8888}"
 mtproto_client_secret="$(ts5_empty_if_placeholder "${MTPROTO_CLIENT_SECRET:-}")"
+mtproto_workers="${MTPROTO_WORKERS:-}"
+mtproto_verbosity="${MTPROTO_VERBOSITY:-}"
+mtproto_tls_domain="${MTPROTO_TLS_DOMAIN:-}"
 mtproto_tag="${MTPROTO_TAG:-}"
 public_api_host="${PUBLIC_API_HOST:-127.0.0.1}"
 api_base_url="${API_BASE_URL:-http://${public_api_host}:${api_port}}"
@@ -102,6 +105,9 @@ fi
 ENABLE_MTPROTO="$enable_mtproto"
 MTPROTO_PORT="$mtproto_port"
 MTPROTO_STATS_PORT="$mtproto_stats_port"
+MTPROTO_WORKERS="$mtproto_workers"
+MTPROTO_VERBOSITY="$mtproto_verbosity"
+MTPROTO_TLS_DOMAIN="$mtproto_tls_domain"
 MTPROTO_TAG="$mtproto_tag"
 if [[ -z "$mtproto_client_secret" ]]; then
   MTPROTO_CLIENT_SECRET="$(ts5_generate_hex_secret)"
@@ -151,6 +157,9 @@ ENABLE_MTPROTO=$ENABLE_MTPROTO
 MTPROTO_PORT=$MTPROTO_PORT
 MTPROTO_STATS_PORT=$MTPROTO_STATS_PORT
 MTPROTO_CLIENT_SECRET=$MTPROTO_CLIENT_SECRET
+MTPROTO_WORKERS=$MTPROTO_WORKERS
+MTPROTO_VERBOSITY=$MTPROTO_VERBOSITY
+MTPROTO_TLS_DOMAIN=$MTPROTO_TLS_DOMAIN
 MTPROTO_TAG=$MTPROTO_TAG
 SMOKE_TEST_URL=${SMOKE_TEST_URL:-https://api.ipify.org?format=json}
 EOF
