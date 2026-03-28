@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOCKS5 TeleProxy Admin</title>
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <section class="login-view" id="loginView">
+      <div class="login-hero">
+        <div class="hero-logo">
+          <img src="/media/logo.png" alt="SOCKS5 TeleProxy">
+        </div>
+        <p class="eyebrow">SOCKS5 TeleProxy</p>
+        <h1>Админка для управления доступом в один спокойный экран.</h1>
+        <p class="hero-copy">
+          Вход для admin и superadmin. После авторизации можно создавать, редактировать и удалять пользователей без консоли.
+        </p>
+      </div>
+
+      <form class="login-panel" id="loginForm">
+        <div class="panel-brand">
+          <img src="/media/logo.png" alt="SOCKS5 TeleProxy">
+          <div>
+            <p class="eyebrow">Авторизация</p>
+            <h2>Вход в панель</h2>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Логин</span>
+          <input id="loginUsername" name="username" type="text" minlength="3" maxlength="64" autocomplete="username" required>
+        </label>
+
+        <label class="field">
+          <span>Пароль</span>
+          <input id="loginPassword" name="password" type="password" minlength="1" maxlength="256" autocomplete="current-password" required>
+        </label>
+
+        <button class="primary-button" id="loginButton" type="submit">Войти</button>
+        <p class="form-error" id="loginError" role="alert"></p>
+      </form>
+    </section>
+
+    <section class="dashboard hidden" id="dashboardView">
+      <header class="dashboard-header">
+        <div class="header-brand">
+          <img src="/media/logo.png" alt="SOCKS5 TeleProxy">
+          <div>
+            <p class="eyebrow">SOCKS5 TeleProxy</p>
+            <h1>Панель управления</h1>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="greeting">
+            <span id="welcomeText">Привет</span>
+            <span class="role-badge" id="roleBadge">admin</span>
+          </div>
+          <button class="ghost-button" id="logoutButton" type="button">Выйти</button>
+        </div>
+      </header>
+
+      <main class="dashboard-main">
+        <section class="toolbar">
+          <div>
+            <p class="eyebrow">Пользователи</p>
+            <h2>Управление прокси-доступом</h2>
+            <p class="toolbar-copy">Создавайте новые учётные записи, обновляйте пароли и быстро отключайте доступ.</p>
+          </div>
+          <button class="primary-button" id="createUserButton" type="button">Создать пользователя</button>
+        </section>
+
+        <section class="users-section">
+          <div class="section-meta">
+            <span id="usersCount">0 пользователей</span>
+            <button class="text-button" id="refreshButton" type="button">Обновить</button>
+          </div>
+
+          <div class="empty-state hidden" id="emptyState">
+            <img src="/media/logo.png" alt="">
+            <h3>Пока нет пользователей</h3>
+            <p>Создайте первого пользователя, чтобы сразу выдать новый SOCKS5-доступ.</p>
+          </div>
+
+          <div class="users-grid" id="usersGrid"></div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="userModal">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
+      <div class="modal-header">
+        <div class="modal-brand">
+          <img src="/media/logo.png" alt="SOCKS5 TeleProxy">
+          <div>
+            <p class="eyebrow" id="userModalEyebrow">Пользователь</p>
+            <h2 id="userModalTitle">Создать пользователя</h2>
+          </div>
+        </div>
+        <button class="icon-button close-button" id="closeUserModal" type="button" aria-label="Закрыть">&times;</button>
+      </div>
+
+      <form class="modal-form" id="userForm">
+        <label class="field">
+          <span>Логин</span>
+          <input id="modalUsername" name="username" type="text" minlength="3" maxlength="64" required>
+        </label>
+
+        <label class="field">
+          <span>Пароль</span>
+          <input id="modalPassword" name="password" type="password" minlength="1" maxlength="256" placeholder="Введите новый пароль">
+        </label>
+
+        <label class="toggle-field">
+          <input id="modalEnabled" name="enabled" type="checkbox" checked>
+          <span>Пользователь активен</span>
+        </label>
+
+        <p class="form-hint" id="userFormHint"></p>
+        <p class="form-error" id="userFormError" role="alert"></p>
+
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancelUserModal" type="button">Отмена</button>
+          <button class="primary-button" id="saveUserButton" type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="deleteModal">
+    <div class="modal-card danger-card" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+      <div class="modal-header">
+        <div class="modal-brand">
+          <img src="/media/logo.png" alt="SOCKS5 TeleProxy">
+          <div>
+            <p class="eyebrow">Удаление</p>
+            <h2 id="deleteModalTitle">Удалить пользователя</h2>
+          </div>
+        </div>
+        <button class="icon-button close-button" id="closeDeleteModal" type="button" aria-label="Закрыть">&times;</button>
+      </div>
+
+      <div class="delete-copy">
+        <p>Пользователь <strong id="deleteUsername">username</strong> будет удалён из конфигурации прокси.</p>
+        <p>Это действие можно отменить только созданием новой учётной записи.</p>
+        <p class="form-error" id="deleteError" role="alert"></p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="ghost-button" id="cancelDeleteModal" type="button">Отмена</button>
+        <button class="danger-button" id="confirmDeleteButton" type="button">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <template id="userCardTemplate">
+    <article class="user-card">
+      <div class="user-card-main">
+        <div>
+          <p class="user-name"></p>
+          <p class="user-meta"></p>
+        </div>
+        <span class="status-pill"></span>
+      </div>
+      <div class="user-card-footer">
+        <div class="timestamps"></div>
+        <div class="card-actions">
+          <button class="icon-button edit-user" type="button" aria-label="Редактировать">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16.25V20h3.75L18.81 8.94l-3.75-3.75L4 16.25zm14.71-9.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.96 1.96 3.75 3.75 2.13-2.79z"/></svg>
+          </button>
+          <button class="icon-button delete-user" type="button" aria-label="Удалить">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2H8l1-2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

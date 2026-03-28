@@ -1,0 +1,28 @@
+services:
+  api:
+    build:
+      context: ./api
+    env_file:
+      - ./.env
+    environment:
+      API_HOST: 0.0.0.0
+    ports:
+      - "${API_PORT:-8088}:${API_PORT:-8088}"
+    volumes:
+      - "${DATA_DIR:-./data}:/data"
+      - "./media:/app/media:ro"
+    restart: unless-stopped
+    depends_on:
+      proxy:
+        condition: service_started
+
+  proxy:
+    build:
+      context: ./proxy
+    env_file:
+      - ./.env
+    ports:
+      - "${SOCKS5_PORT:-1080}:${SOCKS5_PORT:-1080}"
+    volumes:
+      - "${DATA_DIR:-./data}:/data"
+    restart: unless-stopped
