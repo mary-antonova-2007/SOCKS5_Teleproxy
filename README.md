@@ -22,6 +22,7 @@
 - редактирование пользователя кнопкой-карандашом
 - удаление пользователя через модалку подтверждения
 - поддержка светлой и тёмной схемы ОС через `prefers-color-scheme`
+- диагностическое логирование `3proxy` и принудительный IPv4-resolve для Telegram-friendly режима
 
 ## Быстрый старт локально
 
@@ -122,6 +123,20 @@ git push -u origin main
 - `POST /admins`
 - `PATCH /admins/{username}/password`
 - `DELETE /admins/{username}`
+
+## Диагностика SOCKS5
+
+Если Telegram не подключается, смотри:
+
+```bash
+cd /opt/SOCKS5_TeleProxy
+tail -f data/3proxy.log.$(date +%Y.%m.%d)
+```
+
+Полезные переменные:
+
+- `PROXY_RESOLVE_MODE=ipv4` — заставляет `3proxy` резолвить только IPv4
+- `PROXY_DEBUG_LOGGING=true` — включает более подробные записи и промежуточный `logdump`
 
 ## Скрипты
 

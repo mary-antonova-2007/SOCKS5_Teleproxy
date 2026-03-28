@@ -23,24 +23,40 @@ class ProxyConfigRenderer:
     def __init__(self, settings: Settings):
         self.settings = settings
 
+    def _resolve_flag(self) -> str:
+        mode = self.settings.proxy_resolve_mode.strip().lower()
+        if mode == "ipv6":
+            return "-6"
+        if mode in {"prefer-ipv6", "ipv6-fallback-ipv4"}:
+            return "-64"
+        if mode in {"prefer-ipv4", "ipv4-fallback-ipv6"}:
+            return "-46"
+        return "-4"
+
     def render(self, state: UsersState) -> str:
         lines = [
             f"pidfile {self.settings.proxy_pid_file}",
             f"log {self.settings.proxy_log_file} D",
             "rotate 30",
+            'logformat "-,+_ L%Y-%m-%d %H:%M:%S %N %p %E %U %C:%c %R:%r %Q:%q %n %e %I %O %D %T"',
             "nscache 65536",
+            "nscache6 65536",
+            f"nserver {self.settings.proxy_primary_resolver}",
+            f"nserver {self.settings.proxy_secondary_resolver}",
             f"monitor {self.settings.proxy_config_file}",
             "timeouts 1 5 30 60 180 1800 15 60",
             "auth strong",
             "flush",
         ]
+        if self.settings.proxy_debug_logging:
+            lines.append("logdump 1 1")
         users_line = _render_users_line(state.proxy_users)
         if users_line:
             lines.append(users_line)
         lines.extend(
             [
                 "allow *",
-                f"socks -p{self.settings.socks5_port} -i0.0.0.0",
+                f"socks {self._resolve_flag()} -p{self.settings.socks5_port} -i0.0.0.0",
             ]
         )
         return "\n".join(lines) + "\n"

@@ -243,3 +243,22 @@ git pull --ff-only origin main
 - содержимое `data/users.json`
 
 Эти файлы уже добавлены в `.gitignore`, поэтому по умолчанию в git они не попадут.
+
+## 11. Где смотреть логи SOCKS5
+
+На сервере:
+
+```bash
+cd /opt/SOCKS5_TeleProxy
+tail -f data/3proxy.log.$(date +%Y.%m.%d)
+docker logs -f telegram-socks5-proxy-1
+```
+
+Для Telegram на IPv4-only VPS особенно важна настройка:
+
+```env
+PROXY_RESOLVE_MODE=ipv4
+PROXY_DEBUG_LOGGING=true
+```
+
+Это уменьшает зависания на попытках `IPv6 connect()` и делает логи заметно информативнее.

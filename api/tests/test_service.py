@@ -40,6 +40,8 @@ def test_proxy_user_crud(env_isolated):
     assert created.username == "tg-user"
     config = service.render_config()
     assert "users tg-user:NT:" in config
+    assert "socks -4 -p1080 -i0.0.0.0" in config
+    assert "logformat " in config
     updated = service.update_proxy_user("tg-user", password="proxy-secret-2", enabled=False, current_role="admin")
     assert updated.enabled is False
     assert "users tg-user:NT:" not in service.render_config()

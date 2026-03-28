@@ -20,6 +20,13 @@ def _env_str(name: str, default: str = "") -> str:
     return os.getenv(name, default).strip()
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name, "").strip().lower()
+    if not raw:
+        return default
+    return raw in {"1", "true", "yes", "on"}
+
+
 @dataclass(frozen=True)
 class Settings:
     data_dir: Path
@@ -39,6 +46,10 @@ class Settings:
     superadmin_password: str
     initial_admin_username: str
     initial_admin_password: str
+    proxy_primary_resolver: str
+    proxy_secondary_resolver: str
+    proxy_resolve_mode: str
+    proxy_debug_logging: bool
     service_name: str = "telegram-socks5-api"
 
     def ensure_dirs(self) -> None:
@@ -88,4 +99,8 @@ def get_settings() -> Settings:
         superadmin_password=_env_str("SUPERADMIN_PASSWORD", "change-me"),
         initial_admin_username=_env_str("INITIAL_ADMIN_USERNAME", "admin"),
         initial_admin_password=_env_str("INITIAL_ADMIN_PASSWORD", ""),
+        proxy_primary_resolver=_env_str("PROXY_PRIMARY_RESOLVER", "1.1.1.1"),
+        proxy_secondary_resolver=_env_str("PROXY_SECONDARY_RESOLVER", "8.8.8.8"),
+        proxy_resolve_mode=_env_str("PROXY_RESOLVE_MODE", "ipv4"),
+        proxy_debug_logging=_env_bool("PROXY_DEBUG_LOGGING", True),
     )
