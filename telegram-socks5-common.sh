@@ -103,6 +103,11 @@ ts5_generate_secret() {
   printf '\n'
 }
 
+ts5_generate_hex_secret() {
+  od -An -N16 -tx1 /dev/urandom | tr -d ' \n'
+  printf '\n'
+}
+
 ts5_shell_quote() {
   printf '%q' "$1"
 }

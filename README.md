@@ -1,11 +1,12 @@
 # SOCKS5 TeleProxy
 
-Проект поднимает SOCKS5-прокси для Telegram и даёт простую веб-админку на `HTML + CSS + JS` для управления пользователями.
+Проект поднимает SOCKS5-прокси и MTProto proxy для Telegram и даёт простую веб-админку на `HTML + CSS + JS` для управления пользователями.
 
 В составе:
 
 - `api` — FastAPI backend с JWT-авторизацией, REST API и встроенной админкой
 - `proxy` — контейнер с `3proxy`
+- `mtproxy` — MTProto proxy для клиентов Telegram
 - `data/` — runtime-данные и сгенерированный конфиг прокси
 - `media/logo.png` — логотип, который используется в админке и модалках
 - `deploy.sh` — основной deploy-скрипт
@@ -23,6 +24,7 @@
 - удаление пользователя через модалку подтверждения
 - поддержка светлой и тёмной схемы ОС через `prefers-color-scheme`
 - диагностическое логирование `3proxy` и принудительный IPv4-resolve для Telegram-friendly режима
+- MTProto proxy как альтернативный способ подключения Telegram
 
 ## Быстрый старт локально
 
@@ -138,10 +140,28 @@ tail -f data/3proxy.log.$(date +%Y.%m.%d)
 - `PROXY_RESOLVE_MODE=ipv4` — заставляет `3proxy` резолвить только IPv4
 - `PROXY_DEBUG_LOGGING=true` — включает более подробные записи и промежуточный `logdump`
 
+## MTProto
+
+Если Telegram плохо работает через SOCKS5, можно использовать встроенный MTProto proxy.
+
+Полезные переменные:
+
+- `ENABLE_MTPROTO=true`
+- `MTPROTO_PORT=443`
+- `MTPROTO_CLIENT_SECRET=...`
+- `MTPROTO_TAG=` опционально, если зарегистрируешь прокси в `@MTProxybot`
+
+Получить готовую ссылку:
+
+```bash
+./mtproto_link.sh
+```
+
 ## Скрипты
 
 - `deploy.sh` — основной деплой и bootstrap `.env`
 - `server-bootstrap.sh` — автоматическая подготовка VPS
+- `mtproto_link.sh` — вывести готовую ссылку `tg://proxy?...`
 - `uninstall.sh` — остановка и удаление окружения
 - `login.sh` — получить JWT
 - `create_user.sh` — создать proxy user

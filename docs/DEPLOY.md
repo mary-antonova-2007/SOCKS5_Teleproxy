@@ -262,3 +262,28 @@ PROXY_DEBUG_LOGGING=true
 ```
 
 Это уменьшает зависания на попытках `IPv6 connect()` и делает логи заметно информативнее.
+
+## 12. MTProto proxy
+
+Если Telegram плохо работает через SOCKS5, можно включить встроенный MTProto proxy:
+
+```env
+ENABLE_MTPROTO=true
+MTPROTO_PORT=443
+```
+
+После деплоя получить ссылку для Telegram:
+
+```bash
+./mtproto_link.sh
+```
+
+Формат ссылки:
+
+```text
+tg://proxy?server=SERVER_IP&port=443&secret=YOUR_SECRET
+```
+
+Основа конфигурации берётся из официального репозитория Telegram MTProxy:
+
+- https://github.com/TelegramMessenger/MTProxy

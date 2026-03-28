@@ -54,6 +54,11 @@ ts5_load_env_file "$env_file"
 project_name="${PROJECT_NAME:-telegram-socks5}"
 api_port="${API_PORT:-8088}"
 socks5_port="${SOCKS5_PORT:-1080}"
+enable_mtproto="${ENABLE_MTPROTO:-true}"
+mtproto_port="${MTPROTO_PORT:-443}"
+mtproto_stats_port="${MTPROTO_STATS_PORT:-8888}"
+mtproto_client_secret="$(ts5_empty_if_placeholder "${MTPROTO_CLIENT_SECRET:-}")"
+mtproto_tag="${MTPROTO_TAG:-}"
 public_api_host="${PUBLIC_API_HOST:-127.0.0.1}"
 api_base_url="${API_BASE_URL:-http://${public_api_host}:${api_port}}"
 superadmin_username="${SUPERADMIN_USERNAME:-superadmin}"
@@ -94,6 +99,16 @@ else
   fi
 fi
 
+ENABLE_MTPROTO="$enable_mtproto"
+MTPROTO_PORT="$mtproto_port"
+MTPROTO_STATS_PORT="$mtproto_stats_port"
+MTPROTO_TAG="$mtproto_tag"
+if [[ -z "$mtproto_client_secret" ]]; then
+  MTPROTO_CLIENT_SECRET="dd$(ts5_generate_hex_secret)"
+else
+  MTPROTO_CLIENT_SECRET="$mtproto_client_secret"
+fi
+
 if [[ -z "$jwt_secret" ]]; then
   JWT_SECRET="$(ts5_generate_secret)"
 else
@@ -106,6 +121,10 @@ fi
 
 if ts5_port_in_use "$API_PORT"; then
   ts5_die "Port $API_PORT is already in use"
+fi
+
+if [[ "$ENABLE_MTPROTO" == "true" ]] && ts5_port_in_use "$MTPROTO_PORT"; then
+  ts5_die "Port $MTPROTO_PORT is already in use"
 fi
 
 cat >"$env_file" <<EOF
@@ -128,6 +147,11 @@ SOCKS5_PROXY_RELOAD_STATUS_FILE=/data/reload.status
 JWT_SECRET=$JWT_SECRET
 JWT_ALGORITHM=$jwt_algorithm
 JWT_EXPIRES_MINUTES=$jwt_expires_minutes
+ENABLE_MTPROTO=$ENABLE_MTPROTO
+MTPROTO_PORT=$MTPROTO_PORT
+MTPROTO_STATS_PORT=$MTPROTO_STATS_PORT
+MTPROTO_CLIENT_SECRET=$MTPROTO_CLIENT_SECRET
+MTPROTO_TAG=$MTPROTO_TAG
 SMOKE_TEST_URL=${SMOKE_TEST_URL:-https://api.ipify.org?format=json}
 EOF
 chmod 600 "$env_file"
@@ -135,7 +159,11 @@ chmod 600 "$env_file"
 mkdir -p "$SCRIPT_DIR/${data_dir#./}"
 
 printf 'docker compose --project-name %s --env-file %s -f %s up -d --build\n' "$project_name" "$env_file" "$compose_file"
-PROJECT_NAME="$project_name" ts5_compose "$env_file" "$compose_file" up -d --build
+compose_args=(up -d --build)
+if [[ "$ENABLE_MTPROTO" == "true" ]]; then
+  compose_args=(--profile mtproto "${compose_args[@]}")
+fi
+PROJECT_NAME="$project_name" ts5_compose "$env_file" "$compose_file" "${compose_args[@]}"
 
 printf 'Bootstrapping initial admin inside API container\n'
 PROJECT_NAME="$project_name" ts5_compose "$env_file" "$compose_file" exec -T api \
@@ -147,6 +175,9 @@ printf '\nDeployment completed.\n'
 printf 'API:   %s\n' "$API_BASE_URL"
 printf 'Admin: %s\n' "$API_BASE_URL"
 printf 'SOCKS: socks5://<user>:<password>@127.0.0.1:%s\n' "$SOCKS5_PORT"
+if [[ "$ENABLE_MTPROTO" == "true" ]]; then
+  printf 'MTProto: tg://proxy?server=%s&port=%s&secret=%s\n' "$PUBLIC_API_HOST" "$MTPROTO_PORT" "$MTPROTO_CLIENT_SECRET"
+fi
 printf 'Superadmin: %s\n' "$SUPERADMIN_USERNAME"
 printf 'Initial admin: %s\n' "$INITIAL_ADMIN_USERNAME"
 printf 'Login test: %s/login.sh --json\n' "$SCRIPT_DIR"

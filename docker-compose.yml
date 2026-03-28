@@ -26,3 +26,19 @@ services:
     volumes:
       - "${DATA_DIR:-./data}:/data"
     restart: unless-stopped
+
+  mtproxy:
+    build:
+      context: ./mtproxy
+    env_file:
+      - ./.env
+    environment:
+      DATA_DIR: /data
+      MTPROTO_PUBLIC_HOST: "${PUBLIC_API_HOST:-127.0.0.1}"
+    ports:
+      - "${MTPROTO_PORT:-443}:443"
+    volumes:
+      - "${DATA_DIR:-./data}:/data"
+    restart: unless-stopped
+    profiles:
+      - mtproto

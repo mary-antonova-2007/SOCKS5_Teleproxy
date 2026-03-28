@@ -110,7 +110,7 @@ prepare_workspace() {
 configure_permissions() {
   chmod +x "$APP_DIR"/deploy.sh "$APP_DIR"/uninstall.sh "$APP_DIR"/login.sh \
     "$APP_DIR"/create_user.sh "$APP_DIR"/delete_user.sh "$APP_DIR"/list_users.sh \
-    "$APP_DIR"/docs/smoke-test.sh "$APP_DIR"/server-bootstrap.sh
+    "$APP_DIR"/docs/smoke-test.sh "$APP_DIR"/server-bootstrap.sh "$APP_DIR"/mtproto_link.sh
 
   if id "$RUN_USER" >/dev/null 2>&1; then
     usermod -aG docker "$RUN_USER" || true
