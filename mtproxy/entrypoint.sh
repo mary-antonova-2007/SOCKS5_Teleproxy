@@ -21,6 +21,7 @@ LISTEN_PORT="${MTPROTO_LISTEN_PORT:-443}"
 STATS_PORT="${MTPROTO_STATS_PORT:-8888}"
 TAG="${MTPROTO_TAG:-}"
 WORKERS="${MTPROTO_WORKERS:-1}"
+TLS_DOMAIN="${MTPROTO_TLS_DOMAIN:-}"
 
 [ -n "$CLIENT_SECRET" ] || die "MTPROTO_CLIENT_SECRET is required"
 case "$CLIENT_SECRET" in
@@ -73,7 +74,16 @@ if [ -n "$TAG" ]; then
   set -- "$@" -P "$TAG"
 fi
 
+if [ -n "$TLS_DOMAIN" ]; then
+  set -- "$@" -D "$TLS_DOMAIN"
+fi
+
 log "Starting MTProto proxy on ${PUBLIC_HOST}:${CLIENT_PORT}"
-log "Client link: tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=dd${CLIENT_SECRET}"
+if [ -n "$TLS_DOMAIN" ]; then
+  tls_secret="$(printf '%s' "$TLS_DOMAIN" | xxd -p -c 256 | tr -d '\n')"
+  log "Client link: tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=ee${CLIENT_SECRET}${tls_secret}"
+else
+  log "Client link: tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=dd${CLIENT_SECRET}"
+fi
 
 exec "$@"

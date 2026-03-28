@@ -127,6 +127,16 @@ ts5_mtproto_link_secret() {
   printf 'dd%s\n' "$base_secret"
 }
 
+ts5_mtproto_tls_link_secret() {
+  local base_secret domain
+  base_secret="$(ts5_normalize_mtproto_secret "${1:-}")"
+  domain="${2:-}"
+  [[ -n "$domain" ]] || ts5_die "MTProto TLS domain is required for Fake TLS links"
+  printf 'ee%s' "$base_secret"
+  printf '%s' "$domain" | xxd -p -c 256 | tr -d '\n'
+  printf '\n'
+}
+
 ts5_shell_quote() {
   printf '%q' "$1"
 }

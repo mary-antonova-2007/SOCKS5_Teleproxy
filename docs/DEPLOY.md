@@ -271,6 +271,7 @@ PROXY_DEBUG_LOGGING=true
 ENABLE_MTPROTO=true
 MTPROTO_PORT=443
 MTPROTO_CLIENT_SECRET=0123456789abcdef0123456789abcdef
+MTPROTO_TLS_DOMAIN=
 ```
 
 После деплоя получить ссылку для Telegram:
@@ -283,6 +284,12 @@ MTPROTO_CLIENT_SECRET=0123456789abcdef0123456789abcdef
 
 ```text
 tg://proxy?server=SERVER_IP&port=443&secret=ddYOUR_32_HEX_SECRET
+```
+
+Для Fake TLS режима:
+
+```text
+tg://proxy?server=SERVER_IP&port=443&secret=eeYOUR_32_HEX_SECRETHEX_ENCODED_DOMAIN
 ```
 
 Основа конфигурации берётся из официального репозитория Telegram MTProxy:
