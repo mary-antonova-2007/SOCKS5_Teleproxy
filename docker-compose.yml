@@ -35,6 +35,7 @@ services:
     environment:
       DATA_DIR: /data
       MTPROTO_PUBLIC_HOST: "${PUBLIC_API_HOST:-127.0.0.1}"
+      MTPROTO_LISTEN_PORT: "443"
     ports:
       - "${MTPROTO_PORT:-443}:443"
     volumes:
